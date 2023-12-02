@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::cmp;
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
@@ -11,10 +12,11 @@ fn main() -> Result<(), std::io::Error> {
         match line {
             Ok(line) => {
                 // Game <num>: XX red, YY green, ZZ blue; XX red, YY green, ...
-                let mut gamestate = true;
                 let colonsplit: Vec<_> = line.split(":").collect();
-                let gameblock: Vec<_> = colonsplit[0].split(" ").collect();
-                let gamenum = gameblock[1].parse::<i32>().unwrap();
+
+                let mut game_r = 0;
+                let mut game_g = 0;
+                let mut game_b = 0;
 
                 let games = colonsplit[1].split(";");
                 for game in games {
@@ -31,21 +33,14 @@ fn main() -> Result<(), std::io::Error> {
                                 "blue" => b = num.parse::<i32>().unwrap(),
                                 _ => {},
                             }
-                            if r <= 12 && g <= 13 && b <= 14 {
-                                continue;
-                            } else {
-                                gamestate = false;
-                                break;
-                            }
-                        }
-                    }
-                    if gamestate == false {
-                        break;
+                        } // iteration rgb values are set
+                        game_r = cmp::max(game_r, r);
+                        game_g = cmp::max(game_g, g);
+                        game_b = cmp::max(game_b, b);
                     }
                 }
-                if gamestate {
-                    sum += gamenum;
-                }
+                let power = game_r * game_g * game_b;
+                sum += power;
             },
             Err(err) => return Err(err),
         }
