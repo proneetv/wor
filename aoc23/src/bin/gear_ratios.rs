@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
+use std::cmp::{max, min};
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
@@ -13,10 +14,8 @@ fn main() -> Result<(), std::io::Error> {
     let row = mat.len();
     let col = mat[0].len();
 
-    let mut r = 0;
     let mut i;
-
-    loop {
+    for r in 0..row {
         i = 0;
         loop {
             let mut curr_num;
@@ -37,7 +36,6 @@ fn main() -> Result<(), std::io::Error> {
                 let state = check_surrounding(start, end, r, &mat);
 
                 if state.0 {
-
                     let key = format!("{},{}", state.1, state.2);
 
                     if gears.contains_key(&key) {
@@ -47,18 +45,14 @@ fn main() -> Result<(), std::io::Error> {
                     } else {
                         gears.insert(key, vec![curr_num]);
                     }
+                }
+            }
 
-                } // if part number
-            } // frame current number
-
+            // need to learn how to beautify this
             i = i+1;
             if i >= col {
                 break;
             }
-        }
-        r = r + 1;
-        if r >= row {
-            break;
         }
     }
 
@@ -77,50 +71,16 @@ fn main() -> Result<(), std::io::Error> {
 // left-1,lvl-1 -> right+1,lvl-1
 // left-1,lvl+1 -> right+1,lvl+1
 fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>) -> (bool, usize, usize) {
+    let left_col = max(0, left as isize - 1) as usize;
+    let right_col = min(139, right + 1) as usize;
+    let top_lvl = max(0, lvl as isize - 1) as usize;
+    let bot_lvl = min(139, lvl + 1);
 
-    let left_col = if left == 0 {
-        0
-    } else {
-        left - 1
-    };
-    let right_col = if right == 139 {
-        139
-    } else {
-        right + 1
-    };
-
-    let top_lvl = if lvl == 0 {
-        0
-    } else {
-        lvl - 1
-    };
-    let bot_lvl = if lvl == 139 {
-        139
-    } else {
-        lvl + 1
-    };
-
-    let mut i = top_lvl;
-    let mut j;
-
-    loop {
-        j = left_col;
-        loop {
-
-            assert!(i < 140 && j < 140, "{} {} {} {} {} {}", i, j, left_col, right_col, top_lvl, bot_lvl);
+    for i in top_lvl..bot_lvl+1 {
+        for j in left_col..right_col+1 {
             if mat[i][j] == '*' {
                 return (true, i, j);
             }
-
-            j = j + 1;
-            if j > right_col {
-                break;
-            }
-        }
-
-        i = i + 1;
-        if i > bot_lvl {
-            break;
         }
     }
 
