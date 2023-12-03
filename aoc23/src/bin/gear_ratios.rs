@@ -59,6 +59,9 @@ fn main() -> Result<(), std::io::Error> {
         if gs.len() == 2 {
             sum += gs[0] * gs[1];
         }
+        if gs.len() > 2 {
+            println!("{:?}", gs);
+        } // no test case with more than 2 part nums around a gear
     }
 
     println!("{}", sum);
