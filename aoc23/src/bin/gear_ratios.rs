@@ -33,8 +33,7 @@ fn main() -> Result<(), std::io::Error> {
                     end = i;
                 }
 
-                let state = check_surrounding(start, end, r, &mat);
-
+                let state = check_surrounding(start, end, r, &mat, row, col);
                 if state.0 {
                     let key = format!("{},{}", state.1, state.2);
 
@@ -70,11 +69,13 @@ fn main() -> Result<(), std::io::Error> {
 // left-1,lvl; right+1,lvl
 // left-1,lvl-1 -> right+1,lvl-1
 // left-1,lvl+1 -> right+1,lvl+1
-fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>) -> (bool, usize, usize) {
+fn check_surrounding(left: usize, right: usize, lvl: usize,
+                     mat: &Vec<Vec<char>>, row: usize, col: usize) -> (bool, usize, usize) {
+
     let left_col = max(0, left as isize - 1) as usize;
-    let right_col = min(139, right + 1) as usize;
+    let right_col = min(col - 1, right + 1) as usize;
     let top_lvl = max(0, lvl as isize - 1) as usize;
-    let bot_lvl = min(139, lvl + 1);
+    let bot_lvl = min(row - 1, lvl + 1);
 
     for i in top_lvl..bot_lvl+1 {
         for j in left_col..right_col+1 {
