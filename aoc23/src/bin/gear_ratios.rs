@@ -10,7 +10,7 @@ fn main() -> Result<(), std::io::Error> {
     let reader = BufReader::new(file);
     let mat: Vec<Vec<char>> = reader.lines().map(|s| s.expect("REASON").chars().collect()).collect();
 
-    let mut gears: HashMap<String, Vec<u32>> = HashMap::new();
+    let mut gears: HashMap<(usize, usize), Vec<u32>> = HashMap::new();
     let row = mat.len();
     let col = mat[0].len();
 
@@ -35,15 +35,7 @@ fn main() -> Result<(), std::io::Error> {
 
                 let state = check_surrounding(start, end, r, &mat, row, col);
                 if state.0 {
-                    let key = format!("{},{}", state.1, state.2);
-
-                    if gears.contains_key(&key) {
-                        let mut vals = gears.get(&key).unwrap().clone();
-                        vals.push(curr_num);
-                        gears.insert(key, (&vals).to_vec());
-                    } else {
-                        gears.insert(key, vec![curr_num]);
-                    }
+                    gears.entry((state.1, state.2)).or_default().push(curr_num);
                 }
             }
 
