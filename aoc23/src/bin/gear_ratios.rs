@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::collections::HashMap;
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
@@ -8,6 +9,7 @@ fn main() -> Result<(), std::io::Error> {
     let reader = BufReader::new(file);
     let mat: Vec<Vec<char>> = reader.lines().map(|s| s.expect("REASON").chars().collect()).collect();
 
+    let mut gears: HashMap<String, Vec<u32>> = HashMap::new();
     let row = mat.len();
     let col = mat[0].len();
 
@@ -34,8 +36,18 @@ fn main() -> Result<(), std::io::Error> {
 
                 let state = check_surrounding(start, end, r, &mat);
 
-                if state {
-                    sum += curr_num;
+                if state.0 {
+
+                    let key = format!("{},{}", state.1, state.2);
+
+                    if gears.contains_key(&key) {
+                        let mut vals = gears.get(&key).unwrap().clone();
+                        vals.push(curr_num);
+                        gears.insert(key, (&vals).to_vec());
+                    } else {
+                        gears.insert(key, vec![curr_num]);
+                    }
+
                 } // if part number
             } // frame current number
 
@@ -50,6 +62,12 @@ fn main() -> Result<(), std::io::Error> {
         }
     }
 
+    for gs in gears.values() {
+        if gs.len() == 2 {
+            sum += gs[0] * gs[1];
+        }
+    }
+
     println!("{}", sum);
 
     Ok(())
@@ -58,7 +76,7 @@ fn main() -> Result<(), std::io::Error> {
 // left-1,lvl; right+1,lvl
 // left-1,lvl-1 -> right+1,lvl-1
 // left-1,lvl+1 -> right+1,lvl+1
-fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>) -> bool {
+fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>) -> (bool, usize, usize) {
 
     let left_col = if left == 0 {
         0
@@ -90,8 +108,8 @@ fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>
         loop {
 
             assert!(i < 140 && j < 140, "{} {} {} {} {} {}", i, j, left_col, right_col, top_lvl, bot_lvl);
-            if !mat[i][j].is_numeric() && mat[i][j] != '.' {
-                return true;
+            if mat[i][j] == '*' {
+                return (true, i, j);
             }
 
             j = j + 1;
@@ -106,5 +124,5 @@ fn check_surrounding(left: usize, right: usize, lvl: usize, mat: &Vec<Vec<char>>
         }
     }
 
-    false
+    (false, 0, 0)
 }
