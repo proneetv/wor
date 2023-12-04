@@ -9,8 +9,8 @@ fn main() -> Result<(), std::io::Error> {
 
     for line in reader.lines() {
         match line {
-            Ok(_line) => {},
-            Err(_err) => {},
+            Ok(line) => { println!("{}", line); },
+            Err(_) => {},
         }
     }
 
