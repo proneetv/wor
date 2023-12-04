@@ -1,14 +1,16 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap, VecDeque};
 use std::cmp::{max, min};
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
+    let mut state : HashMap<i32, Vec<i32>> = HashMap::new();
 
     let file = File::open("input/input41.txt")?;
     let reader = BufReader::new(file);
 
+    let mut iter = 1;
     for line in reader.lines() {
         match line {
             Ok(line) => {
@@ -23,24 +25,38 @@ fn main() -> Result<(), std::io::Error> {
                         winnums.insert(num);
                     }
                 }
-                println!("{:?}", winnums);
 
-                let mut curr_sum = 0;
-                let mut first = false;
+                let mut matches = 0;
                 for num in rightnums {
                     if winnums.contains(num) {
-                        if first {
-                            curr_sum = curr_sum * 2;
-                        } else {
-                            curr_sum = 1;
-                            first = true;
-                        }
+                        matches += 1;
                     }
                 }
 
-                sum += curr_sum;
+                if !state.contains_key(&iter) {
+                    state.insert(iter, Vec::new());
+                }
+
+                for i in iter+1..iter+matches+1 {
+                    state.entry(iter).or_default().push(i);
+                }
             },
             Err(err) => {},
+        }
+        iter += 1;
+    }
+
+    let mut visited = VecDeque::new();
+    for i in 1..iter {
+        visited.push_back(i);
+    }
+
+    while visited.len() != 0 {
+        sum += 1;
+        let item = visited.pop_front().unwrap();
+        let vals = state.get(&item).unwrap();
+        for i in vals {
+            visited.push_back(*i);
         }
     }
 
