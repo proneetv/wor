@@ -5,12 +5,13 @@ use std::cmp::{max, min};
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
-    let mut state : HashMap<i32, Vec<i32>> = HashMap::new();
+    let mut state : HashMap<i32, i32> = HashMap::new();
 
     let file = File::open("input/input41.txt")?;
     let reader = BufReader::new(file);
 
     let mut iter = 1;
+
     for line in reader.lines() {
         match line {
             Ok(line) => {
@@ -34,11 +35,14 @@ fn main() -> Result<(), std::io::Error> {
                 }
 
                 if !state.contains_key(&iter) {
-                    state.insert(iter, Vec::new());
+                    state.insert(iter, 1);
                 }
 
                 for i in iter+1..iter+matches+1 {
-                    state.entry(iter).or_default().push(i);
+                    if !state.contains_key(&i) {
+                        state.insert(i, 1);
+                    }
+                    state.insert(i, state.get(&i).unwrap() + state.get(&iter).unwrap());
                 }
             },
             Err(err) => {},
@@ -46,20 +50,9 @@ fn main() -> Result<(), std::io::Error> {
         iter += 1;
     }
 
-    let mut visited = VecDeque::new();
-    for i in 1..iter {
-        visited.push_back(i);
+    for i in state.values() {
+        sum += i;
     }
-
-    while visited.len() != 0 {
-        sum += 1;
-        let item = visited.pop_front().unwrap();
-        let vals = state.get(&item).unwrap();
-        for i in vals {
-            visited.push_back(*i);
-        }
-    }
-
     println!("{}", sum);
 
     Ok(())
