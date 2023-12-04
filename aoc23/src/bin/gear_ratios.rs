@@ -1,14 +1,17 @@
+use std::cmp::{max, min};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::collections::HashMap;
-use std::cmp::{max, min};
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
 
     let file = File::open("input/input31.txt")?;
     let reader = BufReader::new(file);
-    let mat: Vec<Vec<char>> = reader.lines().map(|s| s.expect("REASON").chars().collect()).collect();
+    let mat: Vec<Vec<char>> = reader
+        .lines()
+        .map(|s| s.expect("REASON").chars().collect())
+        .collect();
 
     let mut gears: HashMap<(usize, usize), Vec<u32>> = HashMap::new();
     let row = mat.len();
@@ -17,7 +20,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut i;
     for r in 0..row {
         i = 0;
-        loop {
+        while i < col {
             let mut curr_num;
             let c = mat[r][i];
             let start = i;
@@ -27,8 +30,8 @@ fn main() -> Result<(), std::io::Error> {
                 curr_num = c as u32 - '0' as u32;
                 end = i;
 
-                while i+1 < col && mat[r][i+1].is_numeric() {
-                    i = i+1;
+                while i + 1 < col && mat[r][i + 1].is_numeric() {
+                    i = i + 1;
                     curr_num = curr_num * 10 + (mat[r][i] as u32 - '0' as u32);
                     end = i;
                 }
@@ -38,12 +41,7 @@ fn main() -> Result<(), std::io::Error> {
                     gears.entry((state.1, state.2)).or_default().push(curr_num);
                 }
             }
-
-            // need to learn how to beautify this
-            i = i+1;
-            if i >= col {
-                break;
-            }
+            i += 1;
         }
     }
 
@@ -64,16 +62,21 @@ fn main() -> Result<(), std::io::Error> {
 // left-1,lvl; right+1,lvl
 // left-1,lvl-1 -> right+1,lvl-1
 // left-1,lvl+1 -> right+1,lvl+1
-fn check_surrounding(left: usize, right: usize, lvl: usize,
-                     mat: &Vec<Vec<char>>, row: usize, col: usize) -> (bool, usize, usize) {
-
+fn check_surrounding(
+    left: usize,
+    right: usize,
+    lvl: usize,
+    mat: &Vec<Vec<char>>,
+    row: usize,
+    col: usize,
+) -> (bool, usize, usize) {
     let left_col = max(0, left as isize - 1) as usize;
     let right_col = min(col - 1, right + 1) as usize;
     let top_lvl = max(0, lvl as isize - 1) as usize;
     let bot_lvl = min(row - 1, lvl + 1);
 
-    for i in top_lvl..bot_lvl+1 {
-        for j in left_col..right_col+1 {
+    for i in top_lvl..bot_lvl + 1 {
+        for j in left_col..right_col + 1 {
             if mat[i][j] == '*' {
                 return (true, i, j);
             }

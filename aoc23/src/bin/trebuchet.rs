@@ -11,23 +11,23 @@ fn main() -> Result<(), std::io::Error> {
         "six".to_string(),
         "seven".to_string(),
         "eight".to_string(),
-        "nine".to_string()
+        "nine".to_string(),
     ];
     let revnums: Vec<String> = nums.iter().map(|c| c.chars().rev().collect()).collect();
 
     let file = File::open("input/input11.txt")?;
     let reader = BufReader::new(file);
 
-    let mut sum : u64 = 0;
+    let mut sum: u64 = 0;
     let mut curr_num;
     for line in reader.lines() {
         curr_num = 0;
         match line {
             Ok(line) => {
                 curr_num += get_digit(&line, &nums);
-                let revline : String = line.chars().rev().collect();
-                curr_num = curr_num*10 + get_digit(&revline, &revnums);
-            },
+                let revline: String = line.chars().rev().collect();
+                curr_num = curr_num * 10 + get_digit(&revline, &revnums);
+            }
             Err(err) => return Err(err),
         }
         // println!("{}", curr_num);
@@ -58,8 +58,8 @@ fn get_digit(line: &str, nums: &Vec<String>) -> u64 {
                     digit = token_num;
                     digit_pos = pos;
                 }
-            },
-            None => {},
+            }
+            None => {}
         };
         token_num += 1;
     }

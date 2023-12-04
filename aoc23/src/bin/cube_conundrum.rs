@@ -1,6 +1,6 @@
+use std::cmp;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::cmp;
 
 fn main() -> Result<(), std::io::Error> {
     let mut sum = 0;
@@ -31,7 +31,7 @@ fn main() -> Result<(), std::io::Error> {
                                 "red" => r = num.parse::<i32>().unwrap(),
                                 "green" => g = num.parse::<i32>().unwrap(),
                                 "blue" => b = num.parse::<i32>().unwrap(),
-                                _ => {},
+                                _ => {}
                             }
                         } // iteration rgb values are set
                         game_r = cmp::max(game_r, r);
@@ -41,7 +41,7 @@ fn main() -> Result<(), std::io::Error> {
                 }
                 let power = game_r * game_g * game_b;
                 sum += power;
-            },
+            }
             Err(err) => return Err(err),
         }
     }

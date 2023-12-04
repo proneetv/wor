@@ -14,10 +14,26 @@ fn main() -> Result<(), std::io::Error> {
     for line in reader.lines() {
         match line {
             Ok(line) => {
-                let twoparts: Vec<_> = line.split("|").map(|s| s.trim()).filter(|x| x.len() != 0).collect();
-                let casewin: Vec<_> = twoparts[0].split(":").map(|s| s.trim()).filter(|x| x.len() != 0).collect();
-                let rightnums: Vec<_> = twoparts[1].split(" ").map(|s| s.trim()).filter(|x| x.len() != 0).collect();
-                let leftnums: Vec<_> = casewin[1].split(" ").map(|s| s.trim()).filter(|x| x.len() != 0).collect();
+                let twoparts: Vec<_> = line
+                    .split("|")
+                    .map(|s| s.trim())
+                    .filter(|x| x.len() != 0)
+                    .collect();
+                let casewin: Vec<_> = twoparts[0]
+                    .split(":")
+                    .map(|s| s.trim())
+                    .filter(|x| x.len() != 0)
+                    .collect();
+                let rightnums: Vec<_> = twoparts[1]
+                    .split(" ")
+                    .map(|s| s.trim())
+                    .filter(|x| x.len() != 0)
+                    .collect();
+                let leftnums: Vec<_> = casewin[1]
+                    .split(" ")
+                    .map(|s| s.trim())
+                    .filter(|x| x.len() != 0)
+                    .collect();
 
                 let winnums: HashSet<&str> = HashSet::from_iter(leftnums);
 
