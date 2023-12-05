@@ -1,9 +1,6 @@
-#![feature(btree_cursors)]
-
-use std::collections::BTreeMap;
+use std::cmp::{max, min};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::ops::Bound;
 
 fn main() -> Result<(), std::io::Error> {
     let file = File::open("input/input51.txt")?;
@@ -20,13 +17,22 @@ fn main() -> Result<(), std::io::Error> {
 
     let mut seedstr = String::new();
     let _ = reader.read_line(&mut seedstr)?;
+
     let seednumstr = &seedstr[7..];
-    let seeds: Vec<i64> = seednumstr
+    let seedrange: Vec<i64> = seednumstr
         .split(" ")
         .map(|s| s.trim())
         .filter(|s| s.len() != 0)
         .map(|s| s.parse::<i64>().unwrap())
         .collect();
+
+    let mut seeds: Vec<(i64, i64)> = Vec::new();
+    let mut i = 0;
+    while i < seedrange.len() {
+        seeds.push((seedrange[i], seedrange[i + 1]));
+        i += 2;
+    }
+
     let mut listomaps = Vec::new();
 
     // lines to be ignored
@@ -48,39 +54,52 @@ fn main() -> Result<(), std::io::Error> {
         count += 1;
     }
 
-    let mut seedloc: Vec<i64> = Vec::new();
-    for seed in seeds {
-        let mut start = seed;
-        for map in &listomaps {
-            match srctodst(start, map) {
-                Some((src, dst, cnt)) => {
-                    if start >= src && start < src + cnt {
-                        start = dst + (start - src);
+    for mapper in &listomaps {
+        let mut new_ranges = Vec::new();
+        for this in mapper {
+            let mut build_range = Vec::new();
+            for seed in seeds {
+                if to(seed) < this.0 || seed.0 > to_m(*this) {
+                    // non overlapping
+                    build_range.push(seed.clone());
+                } else {
+                    // right portion overlapping
+                    if seed.0 < this.0 {
+                        build_range.push((seed.0, this.0 - seed.0).clone());
                     }
+
+                    // left portion overlapping
+                    if to(seed) > to_m(*this) {
+                        build_range.push((to_m(*this) - 1, to(seed) - to_m(*this)).clone());
+                    }
+
+                    let c = this.0 - this.1;
+                    let left = max(seed.0, this.0) - c;
+                    let right = min(to(seed), to_m(*this)) - c;
+                    new_ranges.push((left, right - left).clone());
                 }
-                None => {}
             }
+            seeds = build_range.clone();
         }
-        seedloc.push(start);
+        new_ranges.append(&mut seeds);
+        seeds = new_ranges.clone();
     }
 
-    println!("{:?}", seedloc.iter().min());
+    println!("{:?}", seeds.into_iter().map(|(from, _)| from).min());
 
     Ok(())
 }
 
-fn srctodst(key: i64, mapper: &BTreeMap<i64, (i64, i64)>) -> Option<(i64, i64, i64)> {
-    let cursor = mapper.upper_bound(Bound::Included(&key));
-    if cursor.key() != None {
-        let val = cursor.value()?.clone();
-        Some((cursor.key()?.clone(), val.0, val.1))
-    } else {
-        None
-    }
+fn to(val: (i64, i64)) -> i64 {
+    val.0 + val.1
 }
 
-fn parsemap(ranges: &Vec<String>) -> BTreeMap<i64, (i64, i64)> {
-    let mut map = BTreeMap::new();
+fn to_m(val: (i64, i64, i64)) -> i64 {
+    val.0 + val.2
+}
+
+fn parsemap(ranges: &Vec<String>) -> Vec<(i64, i64, i64)> {
+    let mut map = Vec::new();
     for s in ranges {
         let dstsrc: Vec<_> = s
             .split(" ")
@@ -88,7 +107,7 @@ fn parsemap(ranges: &Vec<String>) -> BTreeMap<i64, (i64, i64)> {
             .filter(|s| s.len() != 0)
             .map(|s| s.parse::<i64>().unwrap())
             .collect();
-        map.insert(dstsrc[1], (dstsrc[0], dstsrc[2]));
+        map.push((dstsrc[1], dstsrc[0], dstsrc[2]));
     }
     map
 }
