@@ -26,12 +26,10 @@ fn main() -> Result<(), std::io::Error> {
         .map(|s| s.parse::<i64>().unwrap())
         .collect();
 
-    let mut seeds: Vec<(i64, i64)> = Vec::new();
-    let mut i = 0;
-    while i < seedrange.len() {
-        seeds.push((seedrange[i], seedrange[i + 1]));
-        i += 2;
-    }
+    let mut seeds: Vec<(i64, i64)> = seedrange
+        .chunks(2)
+        .map(|i| (i[0], i[1]))
+        .collect::<Vec<_>>();
 
     let mut listomaps = Vec::new();
 
