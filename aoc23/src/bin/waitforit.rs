@@ -32,10 +32,41 @@ fn main() -> Result<(), std::io::Error> {
         .parse::<i64>()
         .unwrap();
 
-    let wins: usize = (0..time)
-        .filter(|speed| (time - speed) * speed > dist)
-        .count();
+    let mut lo = 0;
+    let mut hi = time;
+    let mut mid = lo + (hi - lo) / 2;
 
-    println!("{}", wins);
+    while lo < hi {
+        if !race(mid - 1, time, dist) && race(mid, time, dist) {
+            break;
+        } else if race(mid - 1, time, dist) {
+            hi = mid - 1;
+        } else if !race(mid, time, dist) {
+            lo = mid + 1;
+        }
+        mid = lo + (hi - lo) / 2;
+    }
+    let start = mid;
+
+    lo = 0;
+    hi = time;
+    mid = lo + (hi - lo) / 2;
+
+    while lo < hi {
+        if race(mid, time, dist) && !race(mid + 1, time, dist) {
+            break;
+        } else if race(mid, time, dist) {
+            lo = mid + 1;
+        } else if !race(mid, time, dist) {
+            hi = mid;
+        }
+        mid = lo + (hi - lo) / 2;
+    }
+
+    println!("{}", mid - start + 1);
     Ok(())
+}
+
+fn race(speed: i64, time: i64, dist: i64) -> bool {
+    (time - speed) * speed > dist
 }
