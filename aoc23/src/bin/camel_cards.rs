@@ -28,16 +28,16 @@ fn main() -> Result<(), std::io::Error> {
                         'A' => 12,
                         'K' => 11,
                         'Q' => 10,
-                        'J' => 9,
-                        'T' => 8,
-                        '9' => 7,
-                        '8' => 6,
-                        '7' => 5,
-                        '6' => 4,
-                        '5' => 3,
-                        '4' => 2,
-                        '3' => 1,
-                        '2' => 0,
+                        'J' => 0,
+                        'T' => 9,
+                        '9' => 8,
+                        '8' => 7,
+                        '7' => 6,
+                        '6' => 5,
+                        '5' => 4,
+                        '4' => 3,
+                        '3' => 2,
+                        '2' => 1,
                         _ => unreachable!(),
                     })
                     .collect::<Vec<usize>>(),
@@ -48,14 +48,25 @@ fn main() -> Result<(), std::io::Error> {
             let mut count: [usize; 13] = [0; 13];
             cards.iter().for_each(|card| count[*card] += 1);
 
-            let totcount = count.into_iter().filter(|f| f > &1).collect::<Vec<usize>>();
-            let strength = match (totcount.iter().sum(), totcount.len()) {
+            let jackcount = count[0];
+
+            // reset jack count for replacing
+            count[0] = 0;
+
+            let count = count.into_iter().filter(|f| f > &1).collect::<Vec<usize>>();
+
+            let strength = match (count.iter().sum::<usize>() + jackcount, count.len()) {
                 (5, 1) => 7,
+                (5, 0) => 7,
+                (4, 0) => 7,
                 (4, 1) => 6,
+                (3, 0) => 6,
                 (5, 2) => 5,
                 (3, 1) => 4,
+                (2, 0) => 4,
                 (4, 2) => 3,
                 (2, 1) => 2,
+                (1, 0) => 2,
                 _ => 1,
             };
 
