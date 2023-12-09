@@ -10,7 +10,10 @@ fn main() -> Result<(), std::io::Error> {
     for line in reader.lines() {
         match line {
             Ok(line) => {
-                let nums = line.split(" ").map(|s| s.parse::<i64>().unwrap()).collect();
+                let nums = line
+                    .split_whitespace()
+                    .filter_map(|s| s.parse::<i64>().ok())
+                    .collect();
                 sum += next_term(&nums);
             }
             Err(_) => {}
@@ -29,8 +32,8 @@ fn next_term(nums: &Vec<i64>) -> i64 {
     }
 
     if diff.iter().all(|n| *n == 0) {
-        return *nums.last().unwrap();
+        return *nums.first().unwrap();
     } else {
-        return *nums.last().unwrap() + next_term(&diff);
+        return *nums.first().unwrap() - next_term(&diff);
     }
 }
