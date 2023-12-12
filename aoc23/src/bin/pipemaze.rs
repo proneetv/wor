@@ -37,7 +37,6 @@ fn main() -> Result<(), std::io::Error> {
     // row,col-1: -,L,F => left
     // row-1,col: |,7,F => up
     // row+1,col: |,L,J => down
-
     let mut curr = match (
         giv(&map, up(prev)),
         giv(&map, down(prev)),
